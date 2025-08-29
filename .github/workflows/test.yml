@@ -31,7 +31,9 @@ jobs:
       run: go build -o air-quality-monitor .
 
     - name: Build Docker image
-      run: docker build -t air-quality-monitor:test .
+      run: |
+        docker build -t air-quality-monitor:test .
+        docker images | grep air-quality-monitor
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

@@ -1,0 +1,63 @@
+# Git
+.git
+.gitignore
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+server.log
+
+# Build artifacts
+air-quality-monitor
+*.exe
+*.dll
+*.so
+*.dylib
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Documentation (optional - remove if you want them in the image)
+README.md
+GITHUB_ACTIONS.md
+KUBERNETES.md
+LICENSE
+
+# Scripts (optional - remove if you want them in the image)
+*.sh
+Makefile
+setup-*.sh
+
+# Kubernetes manifests (optional - remove if you want them in the image)
+k8s/
+.github/
+
+# Test files
+*_test.go
+main_test.go
+
+# Example data
+example.json
+config.json
