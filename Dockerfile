@@ -1,8 +1,13 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.21-bullseye AS builder
 
 # Install build dependencies
-RUN apk add --no-cache git gcc musl-dev sqlite-dev
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    libc6-dev \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -20,10 +25,13 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o air-quality-monitor .
 
 # Final stage
-FROM alpine:latest
+FROM debian:bullseye-slim
 
 # Install runtime dependencies
-RUN apk --no-cache add ca-certificates sqlite
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app
