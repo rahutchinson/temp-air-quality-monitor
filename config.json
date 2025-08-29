@@ -1,0 +1,17 @@
+{
+  "device": {
+    "url": "http://192.168.1.100/json",
+    "timeout": 10,
+    "retry_attempts": 3,
+    "retry_delay": 5
+  },
+  "server": {
+    "port": 8080,
+    "host": "0.0.0.0",
+    "refresh_interval": 30
+  },
+  "logging": {
+    "level": "info",
+    "file": "air-quality.log"
+  }
+}
