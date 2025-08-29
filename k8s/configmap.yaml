@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: air-quality-config
-  namespace: air-quality-monitor
-data:
-  device-url: "http://192.168.0.249/json"
-  server-addr: ":8080"
-  database-path: "/app/data/air_quality.db"

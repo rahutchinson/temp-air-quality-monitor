@@ -15,6 +15,7 @@ type Server struct {
 	deviceURL string
 	router    *mux.Router
 	database  *Database
+	stopChan  chan struct{}
 }
 
 // NewServer creates a new server instance
@@ -23,6 +24,7 @@ func NewServer(deviceURL string, database *Database) *Server {
 		deviceURL: deviceURL,
 		router:    mux.NewRouter(),
 		database:  database,
+		stopChan:  make(chan struct{}),
 	}
 	s.setupRoutes()
 	return s
@@ -447,8 +449,61 @@ func (s *Server) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
+// startDataCollection starts the background data collection service
+func (s *Server) startDataCollection() {
+	log.Printf("Starting background data collection service...")
+	
+	// Collect data immediately
+	s.collectAndStoreData()
+	
+	// Set up ticker for periodic collection (every 5 minutes)
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+	
+	for {
+		select {
+		case <-ticker.C:
+			s.collectAndStoreData()
+		case <-s.stopChan:
+			log.Printf("Stopping background data collection service...")
+			return
+		}
+	}
+}
+
+// collectAndStoreData fetches data from the sensor and stores it in the database
+func (s *Server) collectAndStoreData() {
+	if s.database == nil {
+		log.Printf("Warning: Database not available, skipping data collection")
+		return
+	}
+	
+	data, err := fetchAirQualityData(s.deviceURL)
+	if err != nil {
+		log.Printf("Error collecting data: %v", err)
+		return
+	}
+	
+	if err := s.database.StoreMeasurement(data); err != nil {
+		log.Printf("Error storing measurement: %v", err)
+		return
+	}
+	
+	log.Printf("Data collected and stored: PM2.5 AQI=%d, Temp=%.1f°F, Humidity=%d%%", 
+		data.Pm25Aqi, data.CurrentTempF, data.CurrentHumidity)
+}
+
+// Stop stops the server and background services
+func (s *Server) Stop() {
+	close(s.stopChan)
+}
+
 // Start starts the HTTP server
 func (s *Server) Start(addr string) error {
 	log.Printf("Starting server on %s", addr)
+	
+	// Start background data collection in a goroutine
+	go s.startDataCollection()
+	
 	return http.ListenAndServe(addr, s.router)
 }
